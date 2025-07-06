@@ -10,8 +10,10 @@
 </head>
 <body>
 
+    @yield('content')
     
 
 <script src="{{ asset('assets/bootstrap/bootstrap.bundle.min.js') }}"></script>
+<!--<script src="http://127.0.0.1:8000/assets/bootstrap/bootstrap.bundle.min.js"></script>--->
 </body>
 </html>
