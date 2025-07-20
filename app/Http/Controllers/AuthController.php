@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
-
+use PDOException;
+use Illuminate\Support\Facades\DB;
 class AuthController extends Controller
 {
     public function login()
@@ -13,19 +15,29 @@ class AuthController extends Controller
 
     public function loginSubmit(Request $request)
     {
-        $advancedValidation = $request->validate([
-            'text_username' => [
-            'required',
-            'string',
-            'min:5',
-            'max:20',
-            'regex:/^[a-zA-Z0-9_\-\.]+$/u', // Permite apenas caracteres alfanuméricos, underline, hífen e ponto
-            function ($attribute, $value, $fail) {
-                if (strtolower($value) === 'admin') {
-                    $fail('O nome de usuário "admin" é reservado.');
+     $advancedValidation = $request->validate([
+    'text_username' => [
+        'required',
+        'string',
+        'email:rfc,dns', // Validação padrão de e-mail com verificação de DNS
+        'max:100', // Tamanho máximo comum para e-mails
+        function ($attribute, $value, $fail) {
+            // Verifica se é um e-mail administrativo reservado
+            $reservedEmails = ['admin@', 'administrator@', 'root@', 'sysadmin@'];
+            foreach ($reservedEmails as $reserved) {
+                if (strpos(strtolower($value), $reserved) === 0) {
+                    $fail('O endereço de e-mail "'.$reserved.'" é reservado.');
                 }
-            },
-        ],
+            }
+            
+            // Verifica provedores de e-mail temporários
+            $tempDomains = ['tempmail.com', 'mailinator.com', '10minutemail.com'];
+            $domain = substr(strrchr($value, "@"), 1);
+            if (in_array(strtolower($domain), $tempDomains)) {
+                $fail('E-mails temporários não são permitidos.');
+            }
+        },
+    ],
         'text_password' => [
             'required',
             'string',
@@ -38,6 +50,13 @@ class AuthController extends Controller
         'text_username.regex' => 'O nome de usuário contém caracteres inválidos.',
         'text_password.regex' => 'A senha deve conter pelo menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.',
     ]);
+
+    try{
+        DB::connection()->getPdo();
+        echo 'Ok';
+    } Catch(\PDOException $e){
+        echo 'Connection falied' . $e->getMessage();
+    }   
 
 
         // $request->validate(

@@ -17,7 +17,7 @@
                                 <div class="mb-3">
                                     <label for="text_username" class="form-label">Username</label>
                                     <input type="email" class="form-control bg-dark text-info" value="{{ old('text_username')}}" name="text_username"
-                                         pattern="[a-zA-Z0-9_\-\.]{5,20}"  title="5-20 caracteres alfanuméricos, underline, hífen ou ponto" 
+                                           pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"  title="5-20 caracteres alfanuméricos, underline, hífen ou ponto" 
                                           required>
                                     @error('text_username')
                                         <div class="text-danger">{{ $message }}</div>
