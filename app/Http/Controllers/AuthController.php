@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Exception;
+use App\Models\User;
 use Illuminate\Http\Request;
+//
+use Exception;
 use PDOException;
 use Illuminate\Support\Facades\DB;
 class AuthController extends Controller
@@ -51,13 +53,9 @@ class AuthController extends Controller
         'text_password.regex' => 'A senha deve conter pelo menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.',
     ]);
 
-    try{
-        DB::connection()->getPdo();
-        echo 'Ok';
-    } Catch(\PDOException $e){
-        echo 'Connection falied' . $e->getMessage();
-    }   
-
+        $users = User::all()->toArray();
+        echo '<pre>';
+        print_r($users);
 
         // $request->validate(
         //     ['text_username' => 'required'],
