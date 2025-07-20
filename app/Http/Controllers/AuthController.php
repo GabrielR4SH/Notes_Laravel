@@ -53,9 +53,11 @@ class AuthController extends Controller
         'text_password.regex' => 'A senha deve conter pelo menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.',
     ]);
 
-        $users = User::all()->toArray();
+        //$users = User::all()->toArray();
+
+        $users = new User();
         echo '<pre>';
-        print_r($users);
+        print_r($users->all()->toArray());
 
         // $request->validate(
         //     ['text_username' => 'required'],
