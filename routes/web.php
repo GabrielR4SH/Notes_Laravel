@@ -18,9 +18,9 @@ Route::middleware([CheckIsNotLogged::class])->group(function () {
 //Se não estiver logado, será redirecionado para a rota /login
 Route::middleware([CheckIsLogged::class])->group(function () {
     //Notes
-    Route::get('/', [MainController::class, 'index']);
-    Route::get('/newNote', [MainController::class, 'newNote']);
-    Route::get('/logout', [AuthController::class, 'logout']);
+    Route::get('/', [MainController::class, 'index'])->name('home');
+    Route::get('/newNote', [MainController::class, 'newNote'])->name('new');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 

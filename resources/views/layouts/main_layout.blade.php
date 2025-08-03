@@ -10,7 +10,11 @@
 </head>
 <body>
 
+    {{-- @if (session()->has('user'))
+        @include('top_bar')
+    @endif --}}
     @yield('content')
+    
     
 
 <script src="{{ asset('assets/bootstrap/bootstrap.bundle.min.js') }}"></script>

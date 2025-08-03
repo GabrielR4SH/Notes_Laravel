@@ -92,7 +92,12 @@ class AuthController extends Controller
         $user->save();
 
         //login user
-        session(['user' => $user->id, 'username' => $user->username]);
+         session([
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username
+            ]
+        ]);
 
         //redirect to main page
         return redirect()->to('/')->with('success', 'Login realizado com sucesso!');
@@ -101,9 +106,8 @@ class AuthController extends Controller
     public function logout()
     {
         //logout from application
-        session()->forget(['user_id', 'username']);
-        session()->flush();
-
+         session()->forget('user');
+        // session()->flush();
         //redirect to login page
         return redirect('/login');
     }
