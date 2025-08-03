@@ -3,14 +3,28 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MainController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/login', [AuthController::class,'login']);
-Route::post('/loginSubmit', [AuthController::class,'loginSubmit']);
-
-//Notes
-Route::get('/', [MainController::class,'index']);
-Route::get('/newNote', [MainController::class,'newNote']);
+use App\Http\Middleware\CheckIsLogged;
+use App\Http\Middleware\CheckIsNotLogged;
 
 
-Route::get('/logout', [AuthController::class,'logout']);
+//Se estiver dentro do middleware CheckIsNotLogged, as rotas abaixo serão acessíveis
+//Se já estiver logado, será redirecionado para a rota / que me traz para a página inicial
+Route::middleware([CheckIsNotLogged::class])->group(function () {
+    Route::get('/login', [AuthController::class, 'login']);
+    Route::post('/loginSubmit', [AuthController::class, 'loginSubmit']);
+});
+
+//Enquanto estiver dentro do middleware CheckIsLogged, as rotas abaixo serão acessíveis
+//Se não estiver logado, será redirecionado para a rota /login
+Route::middleware([CheckIsLogged::class])->group(function () {
+    //Notes
+    Route::get('/', [MainController::class, 'index']);
+    Route::get('/newNote', [MainController::class, 'newNote']);
+    Route::get('/logout', [AuthController::class, 'logout']);
+});
+
+
+
+
+
 

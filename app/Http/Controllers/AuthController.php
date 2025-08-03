@@ -57,8 +57,7 @@ class AuthController extends Controller
         //$users = User::all()->toArray();
 
         $users = new User();
-        echo '<pre>';
-        print_r($users->all()->toArray());
+
 
         // $request->validate(
         //     ['text_username' => 'required'],
@@ -93,10 +92,10 @@ class AuthController extends Controller
         $user->save();
 
         //login user
-        session(['user_id' => $user->id, 'username' => $user->username]);
+        session(['user' => $user->id, 'username' => $user->username]);
 
         //redirect to main page
-        echo 'Login realizado com sucesso!';
+        return redirect()->to('/')->with('success', 'Login realizado com sucesso!');
     }
 
     public function logout()

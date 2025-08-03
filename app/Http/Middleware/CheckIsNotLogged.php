@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class CheckIsLogged
+class CheckIsNotLogged
 {
     /**
      * Handle an incoming request.
@@ -16,10 +16,10 @@ class CheckIsLogged
      */
     public function handle(Request $request, Closure $next)
     {
-        // Check if the user is logged in
-        if (!session('user')) {
-            return redirect('/login');
+        if(session('user')) {
+            return redirect('/');
         }
+
         return $next($request);
     }
 }
