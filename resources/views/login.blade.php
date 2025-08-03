@@ -40,7 +40,7 @@
 
                             </form>
 
-                            @if($errors->any())
+                            {{-- @if($errors->any())
                                 <div class="alert alert-danger mt-3">
                                     <ul class="m-0">
                                         @foreach ($errors->all() as $e )
@@ -48,13 +48,13 @@
                                         @endforeach
                                     </ul>
                                 </div>
-                            @endif
+                            @endif --}}
 
-                            {{-- @if (session('loginError'))
+                            @if (session('loginError'))
                                 <div class="alert alert-danger text-center">
                                     {{ session('loginError') }}
                                 </div>
-                            @endif --}}
+                            @endif
                         </div>
                     </div>
 
