@@ -2,102 +2,167 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Note;
+use App\Models\User;
 use App\Services\Operations;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Crypt;
-use PhpParser\Node\Expr\Throw_;
-use PhpParser\Node\Stmt\Catch_;
-use Illuminate\Contracts\Encryption;
-use Illuminate\Contracts\Encryption\DecryptException;
-use \App\Models\Note;
+
 class MainController extends Controller
 {
     public function index()
     {
+        // load user's notes
         $id = session('user.id');
+        $notes = User::find($id)
+                    ->notes()
+                    ->whereNull('deleted_at')
+                    ->get()
+                    ->toArray();
 
-        $user = User::find($id)->toArray();
-        $notes = User::find($id)->notes()->get()->toArray();
-
-        // echo '<pre>';
-        //     print_r($user);
-        //     print_r($notes);
-        // echo '</pre>';
-
-        // die('Inside MainController index method');
-
+        // show home view
         return view('home', ['notes' => $notes]);
     }
 
     public function newNote()
     {
+        // show new note view
         return view('new_note');
     }
 
     public function newNoteSubmit(Request $request)
     {
-        $validatedData = $request->validate(
+        // validate request
+        $request->validate(
+            // rules
             [
-                'text_title' => 'required|min:3|max:255',  // Changed from 'title' to 'text_title'
-                'text_note' => 'required|min:10|max:1000',  // Changed from 'content' to 'text_note'
+                'text_title' => 'required|min:3|max:200',
+                'text_note' => 'required|min:3|max:3000'
             ],
+            // error messages
             [
-                'text_title.required' => 'The title is required.',
-                'text_title.max' => 'The title may not be greater than 255 characters.',
-                'text_title.min' => 'The title must be at least 3 characters.',
-
-                'text_note.required' => 'The content is required.',
-                'text_note.max' => 'The content may not be greater than 1000 characters.',
-                'text_note.min' => 'The content must be at least 10 characters.',
+                'text_title.required' => 'O título é obrigatório',
+                'text_title.min' => 'O título deve ter pelo menos :min caracteres',
+                'text_title.max' => 'O título deve ter no máximo :max caracteres',
+                'text_note.required' => 'A nota é obrigatória',
+                'text_note.min' => 'A nota deve ter pelo menos :min caracteres',
+                'text_note.max' => 'A nota deve ter no máximo :max caracteres'
             ]
         );
 
+        // get user id
         $id = session('user.id');
+
+        // create new note
         $note = new Note();
         $note->user_id = $id;
-        $note->title = $validatedData['text_title'];  // Changed from 'title' to 'text_title'
-        $note->text = $validatedData['text_note']; // Changed from 'content' to 'text_note'
+        $note->title = $request->text_title;
+        $note->text = $request->text_note;
         $note->save();
 
-        return redirect()->route('home')->with('success', 'Note created successfully');
+        // redirect to home
+        return redirect()->route('home');
     }
 
-    public function edit($id)
+    public function editNote($id)
     {
-        try {
-            $id = Operations::decryptId($id);
-        } catch (DecryptException $e) {
-            redirect()->route('home')->with('error', 'Invalid note ID');
+        $id = Operations::decryptId($id);
+
+        if($id === null){
+            return redirect()->route('home');
         }
+        
+        // load note
+        $note = Note::find($id);
+
+        // show edit note view
+        return view('edit_note', ['note' => $note]);
     }
 
-    public function update(Request $request, $id)
+    public function editNoteSubmit(Request $request)
     {
-        $id = Operations::decryptId($id);
-        echo 'Inside MainController update method with ID: ' . $id;
-        // Logic to update the note with the given ID
-        // $note = Note::find($id);
-        // $note->update($request->all());
-        // return redirect()->route('home')->with('success', 'Note updated successfully');
+        // validate request
+        $request->validate(
+            // rules
+            [
+                'text_title' => 'required|min:3|max:200',
+                'text_note' => 'required|min:3|max:3000'
+            ],
+            // error messages
+            [
+                'text_title.required' => 'O título é obrigatório',
+                'text_title.min' => 'O título deve ter pelo menos :min caracteres',
+                'text_title.max' => 'O título deve ter no máximo :max caracteres',
+                'text_note.required' => 'A nota é obrigatória',
+                'text_note.min' => 'A nota deve ter pelo menos :min caracteres',
+                'text_note.max' => 'A nota deve ter no máximo :max caracteres'
+            ]
+        );
+
+        // check if note_id exists
+        if($request->note_id == null){
+            return redirect()->route('home');
+        }
+
+        // decrypt note_id
+        $id = Operations::decryptId($request->note_id);
+
+        if($id === null){
+            return redirect()->route('home');
+        }
+
+        // load note
+        $note = Note::find($id);
+
+        // update note
+        $note->title = $request->text_title;
+        $note->text = $request->text_note;
+        $note->save();
+
+        // redirect to home
+        return redirect()->route('home');
     }
 
-    public function delete($id)
+    public function deleteNote($id)
     {
         $id = Operations::decryptId($id);
-        echo 'Inside MainController delete method with ID: ' . $id;
-        // Logic to delete the note with the given ID
-        // $note = Note::find($id);
+
+        if($id === null){
+            return redirect()->route('home');
+        }
+        
+        // load note
+        $note = Note::find($id);
+
+        // show delete note confirmation
+        return view('delete_note', ['note' => $note]);
+    }
+
+    public function deleteNoteConfirm($id)
+    {
+        // check if $id is encrypted
+        $id = Operations::decryptId($id);
+
+        if($id === null){
+            return redirect()->route('home');
+        }
+
+        // load note
+        $note = Note::find($id);
+
+        // 1. hard delete
         // $note->delete();
-        // return redirect()->route('home')->with('success', 'Note deleted successfully');
+
+        // 2. soft delete
+        // $note->deleted_at = date('Y:m:d H:i:s');
+        // $note->save();
+
+        // 3. soft delete (property SoftDeletes in model)
+        $note->delete();
+
+        // 4. hard delete (property SoftDeletes in model)
+        // $note->forceDelete();
+
+        // redirect to home
+        return redirect()->route('home');
     }
-
-    public function show($id)
-    {
-        $decrytedId = Crypt::decrypt($id);
-        echo 'Inside MainController show method with ID: ' . $decrytedId;
-    }
-
-
-
 }
